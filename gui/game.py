@@ -113,10 +113,12 @@ class SpaceShip(pygame.sprite.Sprite):
 
 
 class Game:
-    def __init__(self, res, fps):
+    def __init__(self, res, fps, speed=2., rotation_speed=1.):
         self.res = res
         self.fps = fps
         self.real_fps = RealFPS(10)
+        self.speed = speed
+        self.rotation_speed = rotation_speed
         
         self.player_boundaries = [[20, self.res[0] - 20],
                                   [20, self.res[1] - 20]]
@@ -137,7 +139,9 @@ class Game:
             os.path.dirname(__file__), "res", "sprites", "carF1.png"
         ))
         self.player = SpaceShip(
-            (self.res[0]/2, self.res[1]/2), 2, 1., self.player_ship_img
+            (self.res[0]/2, self.res[1]/2), 
+            self.speed, self.rotation_speed, 
+            self.player_ship_img
         )
         
         # Create the list of car's path
