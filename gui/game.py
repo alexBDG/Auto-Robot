@@ -113,12 +113,16 @@ class SpaceShip(pygame.sprite.Sprite):
 
 
 class Game:
-    def __init__(self, res, fps, speed=2., rotation_speed=1.):
+    def __init__(self, res, fps, speed=2., rotation_speed=1.,
+                 player_motors=None):
         self.res = res
         self.fps = fps
         self.real_fps = RealFPS(10)
         self.speed = speed
         self.rotation_speed = rotation_speed
+        
+        # Car motors if we control the raspberry
+        self.player_motors = player_motors
         
         self.player_boundaries = [[20, self.res[0] - 20],
                                   [20, self.res[1] - 20]]
@@ -163,7 +167,11 @@ class Game:
         while self.is_running:
             for evt in pygame.event.get():
                 self.manage_events(evt)
-            self.manage_pressed_keys()
+            v = self.manage_pressed_keys()
+            if self.player_motors is not None:
+                self.player_motors.move(
+                    v[0]*self.speed, v[1]*self.rotation_speed
+                )
             self.update()
         self.quit()
 
@@ -218,6 +226,8 @@ class Game:
                 
         else:
             self.iterr_moved = False
+            
+        return vector
 
 
     def draw(self):
