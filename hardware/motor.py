@@ -126,7 +126,7 @@ class RobotMotors():
 
     def move(self, speed=0.5, turn=0.):
         if self.verbose>0:
-            print("[INFO] move - speed={:d}% & turn={:d}%".format(
+            print("[INFO] move - speed={:.0f}% & turn={:.0f}%".format(
                 speed*100, turn*100
             ))
 

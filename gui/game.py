@@ -18,30 +18,30 @@ def screen_text(text, size, color, frame, pos, font="Calibri"):
     surface = text_surface(text, size, color, font)
     rect = surface.get_rect()
     frame.blit(surface, (pos[0] - rect.w/2, pos[1] - rect.h/2))
-    
-    
+
+
 class RealFPS:
     def __init__(self, precision):
         self.precision = precision
         self.fps = [0]*precision
         self.start = time.time()
-        
+
     def update(self):
         stop = time.time()
         self.fps = [1./(stop - self.start)] + self.fps[:-1]
         self.start = stop
-        
+
     def get_value(self):
         return int(sum(self.fps)/self.precision)
-    
-    
+
+
 class FuturePath:
     def __init__(self, player, boundaries, precision=2):
         self.player = player
         self.boundaries = boundaries
         self.precision = precision
         self.path = [[0,0]]*precision
-        
+
     def update(self):
         self.path = [[0,0]]*self.precision
         for i in range(self.precision):
@@ -49,7 +49,7 @@ class FuturePath:
                 self.player.pos[0] - i*10*self.player.direction.x,
                 self.player.pos[1] - i*10*self.player.direction.y
             ]
-            
+
             # Valid or not the x-position
             if self.path[i][0] < self.boundaries[0][0]:
                 self.path = self.path[:i]
@@ -57,7 +57,7 @@ class FuturePath:
             elif self.path[i][0] > self.boundaries[0][1]:
                 self.path = self.path[:i]
                 return
-            
+
             # Valid or not the y-position
             if self.path[i][1] < self.boundaries[1][0]:
                 self.path = self.path[:i]
@@ -65,10 +65,10 @@ class FuturePath:
             elif self.path[i][1] > self.boundaries[1][1]:
                 self.path = self.path[:i]
                 return
-        
+
     def get_values(self):
         return self.path
-        
+
 
 
 class SpaceShip(pygame.sprite.Sprite):
@@ -79,7 +79,7 @@ class SpaceShip(pygame.sprite.Sprite):
         self.speed = speed
         self.angle_speed = rotation_speed
         self.scale = 1.5
-        
+
         self.rotation = 0
         self.direction = pygame.math.Vector2(0, 1)
 
@@ -104,7 +104,7 @@ class SpaceShip(pygame.sprite.Sprite):
         vec = pygame.math.Vector2(0, 1)
         vec.y = y_axis*self.speed
         vec.rotate_ip(-self.rotation)
-        
+
         self.direction.rotate_ip(delta_rot)
         self.direction.normalize_ip()
 
@@ -113,20 +113,20 @@ class SpaceShip(pygame.sprite.Sprite):
 
 
 class Game:
-    def __init__(self, res, fps, speed=2., rotation_speed=1.,
+    def __init__(self, res, fps, speed=1., rotation_speed=1.,
                  player_motors=None):
         self.res = res
         self.fps = fps
         self.real_fps = RealFPS(10)
         self.speed = speed
         self.rotation_speed = rotation_speed
-        
+
         # Car motors if we control the raspberry
         self.player_motors = player_motors
-        
+
         self.player_boundaries = [[20, self.res[0] - 20],
                                   [20, self.res[1] - 20]]
-        
+
         # Define the colors we will use in RGB format
         self.BLACK = (  0,   0,   0)
         self.WHITE = (255, 255, 255)
@@ -138,16 +138,16 @@ class Game:
         self.is_running = True
         self.iterr_moved = False
         self.clock = pygame.time.Clock()
-        
+
         self.player_ship_img = pygame.image.load(os.path.join(
-            os.path.dirname(__file__), "res", "sprites", "carF1.png"
+            os.path.dirname(__file__), "res", "sprites", "carF1.bmp"
         ))
         self.player = SpaceShip(
-            (self.res[0]/2, self.res[1]/2), 
-            self.speed, self.rotation_speed, 
+            (self.res[0]/2, self.res[1]/2),
+            self.speed, self.rotation_speed,
             self.player_ship_img
         )
-        
+
         # Create the list of car's path
         self.path = []
         self.future = FuturePath(self.player, self.player_boundaries, 100)
@@ -169,8 +169,11 @@ class Game:
                 self.manage_events(evt)
             v = self.manage_pressed_keys()
             if self.player_motors is not None:
+                # Without speed no turn
+                if v[1]==0:
+                    v[0] = 0
                 self.player_motors.move(
-                    v[0]*self.speed, v[1]*self.rotation_speed
+                    -v[1]*self.speed, -v[0]*self.rotation_speed
                 )
             self.update()
         self.quit()
@@ -179,7 +182,7 @@ class Game:
     def manage_events(self, evt):
         if evt.type == pygame.QUIT:
             self.is_running = False
-            
+
         elif evt.type == pygame.KEYDOWN:
             # To quit
             if ((evt.mod & pygame.KMOD_CTRL) and (evt.key == pygame.K_c)):
@@ -198,12 +201,12 @@ class Game:
             vector[1] -= 1
         if pressed[pygame.K_s] or pressed[pygame.K_DOWN]:
             vector[1] += 1
-        
+
         # Only if non nul velocity
         if vector[1]!=0:
             self.iterr_moved = True
             self.player.move(vector[0], vector[1])
-            
+
             # Valid or not the x-position
             if self.player.pos[0] < self.player_boundaries[0][0]:
                 self.player.pos = (
@@ -213,7 +216,7 @@ class Game:
                 self.player.pos = (
                     self.player_boundaries[0][1], self.player.pos[1]
                 )
-            
+
             # Valid or not the y-position
             if self.player.pos[1] < self.player_boundaries[1][0]:
                 self.player.pos = (
@@ -223,10 +226,10 @@ class Game:
                 self.player.pos = (
                     self.player.pos[0], self.player_boundaries[1][1]
                 )
-                
+
         else:
             self.iterr_moved = False
-            
+
         return vector
 
 
@@ -234,7 +237,7 @@ class Game:
         if len(self.path)>1:
             # Draw the path
             pygame.draw.lines(self.screen, self.RED, False, self.path, 2)
-        
+
         # Draw the future path
         future_path = self.future.get_values()
         if len(future_path)>1:
@@ -242,33 +245,33 @@ class Game:
             pygame.draw.lines(
                 self.screen, self.BLUE, False, future_path, 2
             )
-        
+
         self.screen.blit(self.player.image, self.player.rect)
         screen_text(
             "{:<3d} FPS".format(self.real_fps.get_value()), 
             40, self.GREEN, self.screen, (40+30, 30)
         )
-        
+
 
     def update(self):
         self.screen.fill(self.BLACK)
-        
+
         self.player.update()
         if self.iterr_moved:
             self.path.append([self.player.pos[0], self.player.pos[1]])
             self.future.update()
         self.real_fps.update()
         self.draw()
-        
+
         self.clock.tick(self.fps)
         pygame.display.update()
-    
-    
+
+
     def quit(self):
         pygame.display.quit()
         pygame.quit()
         del self
-        
+
 
 
 if __name__ == "__main__":
