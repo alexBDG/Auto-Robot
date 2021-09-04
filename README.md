@@ -8,10 +8,18 @@ Project of driving a miniature car controlled by Raspberry Pi.
 
 
 ## Drive
-Use the script `main.py` to launch the manual driving mode. Add an argument to specify the speed factor (normalized between 0 and 1).
+Use the script `main.py` to launch the manual driving mode.
 ```console
-pi@raspberrypi:~$ python main.py 0.5
+pi@raspberrypi:~$ python main.py -s 1. -r (200,100) --fps 20 -v 1
 ```
+
+Available arguments are:
+
+- `--help` to display the program's help message
+- `--speed` to fix the car velocity
+- `--resolution` to set the windows resolution
+- `--fps` to set the frame per seconds value
+- `--verbose` can be used to display informations if non null value
 
 
 ## Viewing
