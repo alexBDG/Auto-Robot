@@ -24,7 +24,8 @@ class RealFPS:
     def __init__(self, precision):
         self.precision = precision
         self.fps = [0]*precision
-        self.start = time.time()
+        # Remove a little bit of time in case of a fast initialization
+        self.start = time.time()-1e3
 
     def update(self):
         stop = time.time()

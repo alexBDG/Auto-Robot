@@ -7,8 +7,8 @@ Created on Sun Aug 15 15:51:28 2021
 import sys
 import argparse
 
-from gui.game import Game
-from hardware.motor import RobotMotors, IS_GPIO_AVAILABLE
+from autorobot.gui.game import Game
+from autorobot.hardware.motor import RobotMotors, IS_GPIO_AVAILABLE
 
 
 def parseTuple(arg):
