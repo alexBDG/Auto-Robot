@@ -115,12 +115,13 @@ class SpaceShip(pygame.sprite.Sprite):
 
 class Game:
     def __init__(self, res, fps, speed=1., rotation_speed=1.,
-                 player_motors=None):
+                 player_motors=None, stand_alone=True):
         self.res = res
         self.fps = fps
         self.real_fps = RealFPS(10)
         self.speed = speed
         self.rotation_speed = rotation_speed
+        self.stand_alone = stand_alone
 
         # Car motors if we control the raspberry
         self.player_motors = player_motors
@@ -153,13 +154,15 @@ class Game:
         self.path = []
         self.future = FuturePath(self.player, self.player_boundaries, 100)
 
-        self.start()
+        # self.start()
 
 
     def start(self):
         pygame.init()
         self.screen = pygame.display.set_mode(self.res)
-        pygame.display.set_caption(self.window_title)
+        
+        if self.stand_alone:
+            pygame.display.set_caption(self.window_title)
 
         self.run()
 
@@ -265,7 +268,9 @@ class Game:
         self.draw()
 
         self.clock.tick(self.fps)
-        pygame.display.update()
+        
+        if self.stand_alone:
+            pygame.display.update()
 
 
     def quit(self):
