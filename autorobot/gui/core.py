@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap, QPainter
 
-from game import Game
+from game import Game, RealFPS
 
 import os
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (-1000,-1000)
@@ -95,18 +95,27 @@ class GameApp(QWidget):
 #========#
 
 class VideoThread(QThread):
+    real_fps = RealFPS(100)
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
         cap = cv2.VideoCapture(0)
         while True:
             ret, frame = cap.read()
+            self.real_fps.update()
             if ret:
                 # https://stackoverflow.com/a/55468544/6622587
                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                fps = "{:<3d} FPS".format(self.real_fps.get_value())
+                cv2.putText(
+                    rgbImage, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3,
+                    (100, 255, 0), 3, cv2.LINE_AA
+                )
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
-                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+                convertToQtFormat = QImage(
+                    rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888
+                )
                 p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
                 self.changePixmap.emit(p)
 

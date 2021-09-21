@@ -9,6 +9,8 @@ import time
 import cv2
 import numpy as np
 
+from autorobot.gui.game import RealFPS
+
 # used to record the time when we processed last frame
 prev_frame_time = 0
 
@@ -23,6 +25,7 @@ RESOLUTION = (600, 400)
 
 # Get camera
 cap = cv2.VideoCapture(0)
+real_fps = RealFPS(100)
 
 print("FPS :", cap.get(cv2.CAP_PROP_FPS))
 cap.set(cv2.CAP_PROP_FPS, FPS)
@@ -99,24 +102,12 @@ while(True):
     )
     # ======================= #
 
-    # font which we will be using to display FPS
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    # time when we finish processing for this frame
-    new_frame_time = time.time()
-
-    # Calculating the fps
-
-    # fps will be number of frame processed in given time frame
-    # since their will be most of time error of 0.001 second
-    # we will be subtracting it to get more accurate result
-    fps = 1/(new_frame_time-prev_frame_time)
-    prev_frame_time = new_frame_time
-
-    # converting the fps into integer then to string
-    fps = str(int(fps))
+    # compute and get the FPS
+    real_fps.update()
+    fps = "{:<3d} FPS".format(real_fps.get_value())
 
     # puting the FPS count on the frame
-    cv2.putText(frame_final, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA)
+    cv2.putText(frame_final, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
 
     # Display the resulting frame
     cv2.imshow('frame', frame_final)
