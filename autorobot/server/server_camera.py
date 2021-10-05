@@ -5,13 +5,23 @@ Created on Sat Sep 25 14:31:56 2021
 @author: alspe
 """
 
+import os
 import io
+import sys
 import cv2
+import time
 import logging
+import argparse
 import traceback
 import socketserver
 import threading
 from http import server
+
+try:
+    from ..gui.game import RealFPS
+except ImportError:
+    sys.path.insert(0, os.path.join('..', '..'))
+    from autorobot.gui.game import RealFPS
 
 PAGE="""\
 <html>
@@ -26,19 +36,37 @@ PAGE="""\
 """
 
 class Streaming(threading.Thread):
-    def __init__(self):
+    def __init__(self, fps=30):
         self.frame = None
+        self.fps = fps
         self.cap = cv2.VideoCapture(0)
+        self.real_fps = RealFPS(100)
         super().__init__()
 
     def run(self):
+        start = time.time()
         while True:
+            # Compute time
+            start, stop = time.time(), start
+            delay = 1./self.fps - (start-stop)
+            print("[DELAY] {:.3f}s ({:.3f} between frames)".format(delay, 1./self.fps), end='\r')
+            time.sleep(delay)
+            start = time.time()
+            
+            # New frame
             ret, img = self.cap.read()
             if not ret:
                 print('[ERROR] no image from camera')
                 quit()
+            cv2.putText(
+                img, "{:<3d} FPS".format(self.real_fps.get_value()), 
+                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0)
+            )
             ret, jpg = cv2.imencode('.jpg', img)
             self.frame = jpg.tobytes()
+            
+            # Update FPS
+            self.real_fps.update()
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -64,6 +92,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 while True:
                     frame = stream.frame
                     self.wfile.write(b'--FRAME\r\n')
+                    # self.wfile.write(b'--mjpegstream\r\n')
                     self.send_header('Content-Type', 'image/jpeg')
                     self.send_header('Content-Length', len(frame))
                     self.end_headers()
@@ -91,7 +120,15 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 if __name__ == "__main__":
     
-    stream = Streaming()
+    parser = argparse.ArgumentParser(prog='Server-Camera')
+    parser.add_argument(
+        '--fps',
+        type=lambda x: int(x), default=30,
+        help='Frames Per Second.'
+    )
+    args = vars(parser.parse_args())
+    
+    stream = Streaming(args['fps'])
     stream.start()
     
     address = ('', 9000)

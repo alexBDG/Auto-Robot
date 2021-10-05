@@ -12,31 +12,31 @@ import threading
 from flask import render_template, request, jsonify
 
 from autorobot.app import app
-from autorobot.server.server import VideoStreamingTest
+# from autorobot.server.server import VideoStreamingTest
 
 
 EXPORTING_THREAD = None
 
 
 
-class ExportingThread(threading.Thread):
-    def __init__(self):
-        super().__init__()
-        self._stop_event = threading.Event()
+# class ExportingThread(threading.Thread):
+#     def __init__(self):
+#         super().__init__()
+#         self._stop_event = threading.Event()
 
-    def run(self):
-        # Lance le server
-        h, p = "localhost", 9000
-        self.stream = VideoStreamingTest(h, p)
+#     def run(self):
+#         # Lance le server
+#         h, p = "localhost", 9000
+#         self.stream = VideoStreamingTest(h, p)
 
-    def stop(self):
-        self.stream.stop_streaming()
-        while self.stream.state != "stopped":
-            time.sleep(0.5)
-        self._stop_event.set()
+#     def stop(self):
+#         self.stream.stop_streaming()
+#         while self.stream.state != "stopped":
+#             time.sleep(0.5)
+#         self._stop_event.set()
 
-    def stopped(self):
-        return self._stop_event.is_set()
+#     def stopped(self):
+#         return self._stop_event.is_set()
         
 
         

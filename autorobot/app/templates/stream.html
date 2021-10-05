@@ -2,13 +2,82 @@
 
 {% block content %}
 
+<script type="text/javascript">
+
+$('document').ready(function(){
+
+    /* Event listener to detect key order */
+    document.addEventListener('keydown', function(event) {
+    
+        //console.log('Key was pressed!', event.keyCode);
+        // Speed vector
+        var vector = [0, 0];
+        
+        // Check LEFT
+        if ((event.keyCode == 37) | (event.keyCode == 81)) {
+            //console.log('Left was pressed');
+            vector[0] -= 1;
+            
+        // Check RIGHT
+        } else if ((event.keyCode == 39) | (event.keyCode == 68)) {
+            //console.log('Right was pressed');
+            vector[0] += 1;
+        
+        // Check UP
+        } else if ((event.keyCode == 38) | (event.keyCode == 90)) {
+            //console.log('Up was pressed');
+            vector[1] -= 1;
+            
+        // Check DOWN
+        } else if ((event.keyCode == 40) | (event.keyCode == 83)) {
+            //console.log('Down was pressed');
+            vector[1] += 1;
+            
+        }
+        
+        
+        // Nothing if no velocity
+        if (vector[1] == 0) {
+            vector[0] = 0;
+        }
+        
+        $.ajax({
+            url: "http://127.0.0.1:9500/",
+            type: "POST",
+            data: JSON.stringify({
+                'vector': vector,
+            }),
+            success : function(data, response) {              
+                console.log('Data:', data);
+                console.log('Reponse:', response);
+            },
+        })
+        
+    }, true);
+    
+});
+
+</script>
+
+
+
 <div class="container" style="width: 100%;">
 
-    <div style="margin: 0px; width: 100%; height: 100%">
-        <video type="video/mpeg" src="http://127.0.0.1:9000/stream.mjpg">
+  <div class="column">
 
+    <div class="row">
+      <label for="speedRotation">Speed Rotation</label>
+      <input id="speedRotation" name="speedRotation" type="text" value="1.">
+      <label for="speedVelocity">Speed Velocity</label>
+      <input id="speedVelocity" name="speedVelocity" type="text" value="1.">
     </div>
+    
+    <div style="margin-left: auto; margin-right: auto; width: 100%; height: 100%">
+      <img type="video/mpeg" src="http://127.0.0.1:9000/stream.mjpg">
+    </div>
+  
+  </div>
 
 </div>
-    
+
 {% endblock %}
