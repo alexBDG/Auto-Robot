@@ -19,7 +19,7 @@ from http import server
 
 try:
     from ..gui.game import RealFPS
-except ImportError:
+except:
     sys.path.insert(0, os.path.join('..', '..'))
     from autorobot.gui.game import RealFPS
 

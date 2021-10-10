@@ -11,6 +11,7 @@ import sys
 import cv2
 import time
 import json
+import socket
 import logging
 import argparse
 import traceback
@@ -20,63 +21,49 @@ from http import server
 
 try:
     from ..hardware.motor import RobotMotors, IS_GPIO_AVAILABLE
-except ImportError:
+except:
     sys.path.insert(0, os.path.join('..', '..'))
     from autorobot.hardware.motor import RobotMotors, IS_GPIO_AVAILABLE
 
-import socket
 
 
-
-class StreamingServer(object):
+class StreamingHandler(server.BaseHTTPRequestHandler):
     
-    def __init__(self, host, port, verbose=0):
-        self.host = host
-        self.port = port
-        self.verbose = verbose
+    def do_POST(self):
+        if self.path == '/':
+            try:
+                content = self.rfile.read(int(self.headers['Content-Length']))
+                content = json.loads(content.decode())
+                print('content', content)
+                # Read
+                v = content['vector']
+                speed = content['speedVelocity']
+                rotation_speed = content['speedRotation']
+                if rm is not None:
+                    rm.move(-v[1]*speed, -v[0]*rotation_speed)
+                is_valid = True
+            
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)
+                is_valid = False
+                
+            finally:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({"is_valid": is_valid}).encode())
+        else:
+            self.send_error(404)
+            self.end_headers()
+
+class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
+    allow_reuse_address = True
+    daemon_threads = True
     
-    def serve_forever(self):
-        # Start the connection
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if self.verbose>0:
-                print("[CMD] starting connection...")    
-            s.bind((self.host, self.port))
-            if self.verbose>0:
-                print("[CMD] listening...")    
-            s.listen(1)
-            conn, addr = s.accept()
-            with conn:
-                if self.verbose>0:
-                    print("[CMD] connection", addr)
-                while True:
-                    data = conn.recv(1024)
-                    if not data:
-                        if self.verbose>0:
-                            print("[CMD] no data - stopped")
-                        break
-                    # Decode and transfoms to list
-                    data = data.decode().split('\r\n')
-                    if self.verbose>0:
-                        print("[CMD] data received", data)
-                        print("[CMD] data received", json.loads(data[-1]))
-                        
-                    # Send response
-                    response_proto = 'HTTP/1.1'
-                    response_status = '200'
-                    response_status_text = 'OK' # this can be random
-                    response_content = {
-                        'Access-Control-Allow-Origin': '*'
-                    }
-        
-                    # sending all this stuff
-                    response = '{} {} {}\r\n'.format(
-                        response_proto, response_status, response_status_text
-                    )
-                    for k, v in response_content.items():
-                        response += '{}: {}\r\n'.format(k, v)
-                    conn.sendall(response.encode())
-
-
+    def handel(self):
+        self.server._shutdown_request = True
+        print('[INFO] shutdown requested')
 
 
 
@@ -99,9 +86,9 @@ if __name__ == "__main__":
     else:
         rm = None
     
-    
-    server = StreamingServer('', 9500, args['verbose'])
-    server.serve_forever()
+    address = ('', 9500)
+    with StreamingServer(address, StreamingHandler) as server:
+        server.serve_forever()
     
     print('[INFO] End')
     
