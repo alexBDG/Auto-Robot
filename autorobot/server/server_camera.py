@@ -48,7 +48,7 @@ class Streaming(threading.Thread):
         while True:
             # Compute time
             start, stop = time.time(), start
-            delay = 1./self.fps - (start-stop)
+            delay = abs(1./self.fps - (start-stop))
             print("[DELAY] {:.3f}s ({:.3f} between frames)".format(
                 delay, 1./self.fps
             ), end='\r')
