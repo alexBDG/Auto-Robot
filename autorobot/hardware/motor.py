@@ -60,7 +60,6 @@ class Motor:
         sleep(t)
 
 
-
 def test1():
     print("#"*80, "{:^80}".format('Test #1'), "#"*80, sep="\n")
     # Define motors
@@ -84,7 +83,6 @@ def test1():
     print("#"*80, sep="\n\n")
 
 
-
 def bornSpeed(s):
     if s > 100:
         return 100
@@ -92,7 +90,6 @@ def bornSpeed(s):
         return -100
     else:
         return s
-
 
 
 class RobotMotors():
@@ -121,7 +118,6 @@ class RobotMotors():
         self.pwmA.start(0)
         self.pwmB.start(0)
         self.verbose = verbose
-
 
 
     def move(self, speed=0.5, turn=0.):
@@ -156,13 +152,11 @@ class RobotMotors():
             GPIO.output(self.In2B, GPIO.HIGH)
 
 
-
     def stop(self):
         if self.verbose>0:
             print("[INFO] stop")
         self.pwmA.ChangeDutyCycle(0)
         self.pwmB.ChangeDutyCycle(0)
-
 
 
 def test2():
@@ -185,4 +179,3 @@ if __name__ == "__main__":
     if IS_GPIO_AVAILABLE:
         test1()
         test2()
-

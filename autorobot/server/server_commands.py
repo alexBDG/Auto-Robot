@@ -26,9 +26,8 @@ except:
     from autorobot.hardware.motor import RobotMotors, IS_GPIO_AVAILABLE
 
 
-
 class StreamingHandler(server.BaseHTTPRequestHandler):
-    
+
     def do_POST(self):
         if self.path == '/':
             try:
@@ -42,11 +41,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 if rm is not None:
                     rm.move(-v[1]*speed, -v[0]*rotation_speed)
                 is_valid = True
-            
+
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)
                 is_valid = False
-                
+
             finally:
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -57,10 +56,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_error(404)
             self.end_headers()
 
+
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
-    
+
     def handel(self):
         self.server._shutdown_request = True
         print('[INFO] shutdown requested')
@@ -68,7 +68,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser(prog='Server-Command')
     parser.add_argument(
         '-v', '--verbose',
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         help='Display informations if non null.'
     )
     args = vars(parser.parse_args())
-    
+
     if IS_GPIO_AVAILABLE:
         rm = RobotMotors(
             21, 20, 16, # Left motor
@@ -85,11 +85,9 @@ if __name__ == "__main__":
         )
     else:
         rm = None
-    
+
     address = ('', 9500)
     with StreamingServer(address, StreamingHandler) as server:
         server.serve_forever()
-    
+
     print('[INFO] End')
-    
-    

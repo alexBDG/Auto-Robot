@@ -29,11 +29,11 @@ if __name__ == '__main__':
         description='''
         Welcome with Auto-Robot program!
         --------------------------------
-            
+
         You need to turn on the raspberry
         and to be sure to have a motor power
         supply.
-        
+
         '''
     )
 
@@ -76,5 +76,3 @@ if __name__ == '__main__':
     g = Game(args['resolution'], args['fps'], args['speed'], args['speed'], rm)
     g.start()
     print("#"*78, sep="\n\n")
-
-

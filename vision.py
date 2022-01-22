@@ -41,10 +41,10 @@ print("    - height :", cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
-    
+
     # ======================= #
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    
+
     vertical_separator = np.full(
         shape=(frame.shape[0], 2),#, frame.shape[-1]), 
         fill_value=255,
@@ -55,7 +55,7 @@ while(True):
         fill_value=255,
         dtype=np.uint8
     )
-    
+
     # Apply identity kernel
     kernel1 = np.array([[-1,  0,  1],
                         [-2,  0,  2],
@@ -81,13 +81,13 @@ while(True):
     frame3 = cv2.filter2D(
         src=frame, ddepth=-1, kernel=kernel3
     )
-    
-    
+
+
     # frame3 = cv2.addWeighted(frame1, .5, frame2, .5, 0)
-    
+
     # frame4 = cv2.GaussianBlur(frame3, (0, 0), cv2.BORDER_DEFAULT)
     # frame3 = cv2.addWeighted(frame3, 1.5, frame4, -0.5, 0)
-    
+
     frame_top = np.concatenate(
         (frame, vertical_separator, frame1), 
         axis=1

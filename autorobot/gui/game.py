@@ -71,7 +71,6 @@ class FuturePath:
         return self.path
 
 
-
 class SpaceShip(pygame.sprite.Sprite):
     def __init__(self, pos, speed, rotation_speed, img):
         pygame.sprite.Sprite.__init__(self)
@@ -110,7 +109,6 @@ class SpaceShip(pygame.sprite.Sprite):
         self.direction.normalize_ip()
 
         self.pos = (self.pos[0] + vec.x, self.pos[1] + vec.y)
-
 
 
 class Game:
@@ -268,7 +266,7 @@ class Game:
         self.draw()
 
         self.clock.tick(self.fps)
-        
+
         if self.stand_alone:
             pygame.display.update()
 

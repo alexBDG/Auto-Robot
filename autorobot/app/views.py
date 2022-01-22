@@ -17,8 +17,6 @@ from autorobot.app import app
 
 EXPORTING_THREAD = None
 
-
-
 # class ExportingThread(threading.Thread):
 #     def __init__(self):
 #         super().__init__()
@@ -37,9 +35,7 @@ EXPORTING_THREAD = None
 
 #     def stopped(self):
 #         return self._stop_event.is_set()
-        
 
-        
 
 @app.route('/')
 @app.route('/index/')
@@ -47,59 +43,54 @@ def index():
     return render_template('index.html')
 
 
-
 @app.route('/about/')
 def about():
     return render_template('about.html')
+
 
 @app.route('/stream/')
 def stream():
     return render_template('stream.html')
 
 
-
 @app.route('/start/', methods = ['POST'])
 def start():
     print("[INFO] starting")
     return render_template('stream.html')
-    
+
     # global EXPORTING_THREAD
-    
+
     # # Launch script
     # EXPORTING_THREAD = ExportingThread()
     # EXPORTING_THREAD.start()
-            
-    # msg = 'Listening...'  
+
+    # msg = 'Listening...'
     # return jsonify(msg)
-
-
 
 
 # @app.route('/stream/', methods = ['POST'])
 # def stream():
-    
+
 #     global EXPORTING_THREAD
-    
+
 #     # Get image
 #     EXPORTING_THREAD.start()
-            
+
 #     if EXPORTING_THREAD.state
 #     msg = 'Listening...'
 #     return jsonify(msg)
-    
 
 
 # @app.route('/end/', methods = ['POST'])
 # def end():
-    
+
 #     global EXPORTING_THREAD
-    
+
 #     # Stop script
 #     EXPORTING_THREAD.stop()
-    
+
 #     msg = 'Stopped!'
 #     return jsonify(msg)
-
 
 
 # Gérer les erreurs

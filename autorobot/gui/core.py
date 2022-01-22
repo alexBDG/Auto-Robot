@@ -34,11 +34,11 @@ class GameThread(QThread):
     def run(self):
         pygame.init()
         self.g = Game(self.resolution, 30, stand_alone=False)
-        
+
         # <start> loop
         pygame.init()
         self.g.screen = pygame.display.set_mode(self.g.res)
-        
+
         # <run> loop
         while self.g.is_running:
             for evt in pygame.event.get():
@@ -55,7 +55,6 @@ class GameThread(QThread):
             self.changePixmap.emit(image)
             #=================================================================#
         self.g.quit()
-
 
 
 class GameApp(QWidget):
@@ -80,7 +79,7 @@ class GameApp(QWidget):
         self.label = QLabel(self)
         self.label.resize(20+self.resolution[0], 20+self.resolution[1])
         self.label.move(10, 10)
-        
+
         # Create the game
         gth = GameThread(self.resolution, self)
         gth.changePixmap.connect(self.setImage)
@@ -120,7 +119,6 @@ class VideoThread(QThread):
                 self.changePixmap.emit(p)
 
 
-
 class CameraApp(QWidget):
 
     def __init__(self, parent=None):
@@ -138,12 +136,12 @@ class CameraApp(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.resize(30+self.resolution[0], 30+self.resolution[1])
-        
+
         # Create a label
         self.label = QLabel(self)
         self.label.resize(20+self.resolution[0], 20+self.resolution[1])
         self.label.move(10, 10)
-        
+
         # Create the stream
         vth = VideoThread(self)
         vth.changePixmap.connect(self.setImage)
@@ -179,14 +177,13 @@ class MainWindow(QMainWindow):
 
         hGroupBox = QGroupBox()
         hGroupBox.setLayout(hlayout)
-        
+
         vlayout.addWidget(hGroupBox)
-        
+
         widget = QWidget()
         widget.setLayout(vlayout)
         widget.resize(self.resolution[0], self.resolution[1])
         self.setCentralWidget(widget)
-
 
 
 #=======#
@@ -195,8 +192,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication([])
-    
+
     window = MainWindow()
     app.exec()
-
-

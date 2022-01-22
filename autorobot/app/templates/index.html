@@ -1,66 +1,74 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        
-    
-    <script>
-        
-        $('document').ready(function(){
-            console.log('ready');
-            
-        });
-        
-        
-        function startListening() {
-            console.log('startListening');
-            $.ajax({
-                url: "/start/",
-                method: "POST",
-                success: function(data) {
-                    console.log('success', data);
-                    var timer = setInterval(function() {
-                        $.get("/stream/", function() {
-                            progress_bar_process(percentage, timer, data);
-                        });
-                    }, 100);
-                },
-                error: function(data) {
-                    console.log('error', data);
-                },
-            });
-        }
-    </script>
-    
 
-    <h1>Auto-Robot</h1>
-    <p>App to control your robot.</p>
-    
-    <br>
-    
-    <div class="container">
-    
-        <h2>Description</h2>
-        <p>You need to power on your raspberry, start stream server and all client.</p>
-        
-        <br>
-        
-        <h2>Stream</h2>
-        <div>
-            <label for="startingStream">Begin to listening</label>
-            <input name="startingStream" type="submit" value="Start" onclick="startListening();"/>
-        </div>
-        
-        <br>
-            
-        <h2>End</h2>
-        <div>
-            <label for="stopStream">Stop the Stream</label>
-            <input name="stopStream" type="submit" value="Stop" onclick="stopListening();"/>
-        </div>
-    
-        <span id="info_message" style="display:none;"></span>
-        
-   </div>
-    
+
+<script>
+
+$('document').ready(function(){
+  console.log('ready');
+});
+
+function startListening() {
+  console.log('startListening');
+  $.ajax({
+    url: "/start/",
+    method: "POST",
+    success: function(data) {
+      console.log('success', data);
+      var timer = setInterval(function() {
+        $.get("/stream/", function() {
+          progress_bar_process(percentage, timer, data);
+        });
+      }, 100);
+    },
+    error: function(data) {
+      console.log('error', data);
+    },
+  });
+}
+
+</script>
+
+
+<h1>Auto-Robot</h1>
+<p>App to control your robot.</p>
+
+<br>
+
+<div class="container">
+
+  <h2>Description</h2>
+  <p>
+    You need to power on your raspberry, start stream server and all client.
+  </p>
+  <br>
+
+  <h2>Stream</h2>
+  <div>
+    <label for="startingStream">Begin to listening</label>
+    <input
+      name="startingStream"
+      type="submit"
+      value="Start"
+      onclick="startListening();"
+    />
+  </div>
+  <br>
+
+  <h2>End</h2>
+  <div>
+    <label for="stopStream">Stop the Stream</label>
+    <input
+      name="stopStream"
+      type="submit"
+      value="Stop"
+      onclick="stopListening();"
+    />
+  </div>
+  <span id="info_message" style="display:none;"></span>
+
+</div>
+
 {% endblock %}
  

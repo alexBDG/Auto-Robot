@@ -9,7 +9,7 @@ Created on Sun Sep  5 10:20:52 2021
 import time
 import cv2
 import unittest
-from autorobot.hardware.camera import Camera
+from camera import Camera
 
 
 class TestHardware(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestHardware(unittest.TestCase):
 
     def test_camera(self):
         ca = Camera(fps=30, width=1920, height=1080, verbose=self.verbose).start()
-        
+
         start = time.time()
         while (time.time()-start)<10:
             frame = ca.read()
@@ -26,9 +26,7 @@ class TestHardware(unittest.TestCase):
                 break
         ca.stop()
         cv2.destroyAllWindows()
-        
+
 
 if __name__ == '__main__':
     unittest.main()
-
-

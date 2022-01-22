@@ -49,22 +49,24 @@ class Streaming(threading.Thread):
             # Compute time
             start, stop = time.time(), start
             delay = 1./self.fps - (start-stop)
-            print("[DELAY] {:.3f}s ({:.3f} between frames)".format(delay, 1./self.fps), end='\r')
+            print("[DELAY] {:.3f}s ({:.3f} between frames)".format(
+                delay, 1./self.fps
+            ), end='\r')
             time.sleep(delay)
             start = time.time()
-            
+
             # New frame
             ret, img = self.cap.read()
             if not ret:
                 print('[ERROR] no image from camera')
                 quit()
             cv2.putText(
-                img, "{:<3d} FPS".format(self.real_fps.get_value()), 
+                img, "{:<3d} FPS".format(self.real_fps.get_value()),
                 (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0)
             )
             ret, jpg = cv2.imencode('.jpg', img)
             self.frame = jpg.tobytes()
-            
+
             # Update FPS
             self.real_fps.update()
 
@@ -86,7 +88,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Age', 0)
             self.send_header('Cache-Control', 'no-cache, private')
             self.send_header('Pragma', 'no-cache')
-            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
+            self.send_header('Content-Type',
+                             'multipart/x-mixed-replace; boundary=FRAME')
             self.end_headers()
             try:
                 while True:
@@ -110,16 +113,15 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
-    
+
     def handel(self):
         self.server._shutdown_request = True
         print('[INFO] shutdown requested')
-        
 
 
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser(prog='Server-Camera')
     parser.add_argument(
         '--fps',
@@ -127,14 +129,12 @@ if __name__ == "__main__":
         help='Frames Per Second.'
     )
     args = vars(parser.parse_args())
-    
+
     stream = Streaming(args['fps'])
     stream.start()
-    
+
     address = ('', 9000)
     with StreamingServer(address, StreamingHandler) as server:
         server.serve_forever()
-    
+
     print('[INFO] End')
-    
-    
