@@ -28,6 +28,25 @@ function startListening() {
   });
 }
 
+function stopListening() {
+  console.log('stopListening');
+  $.ajax({
+    url: "/stop/",
+    method: "POST",
+    success: function(data) {
+      console.log('success', data);
+      var timer = setInterval(function() {
+        $.get("/stream/", function() {
+          progress_bar_process(percentage, timer, data);
+        });
+      }, 100);
+    },
+    error: function(data) {
+      console.log('error', data);
+    },
+  });
+}
+
 </script>
 
 

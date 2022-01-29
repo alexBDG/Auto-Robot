@@ -7,6 +7,7 @@ Created on Sat Sep 25 11:22:18 2021
 
 from flask import Flask
 
+# Local imports.
 from .config import Config
 
 

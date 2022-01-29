@@ -81,9 +81,9 @@ def start():
 #     return jsonify(msg)
 
 
-# @app.route('/end/', methods = ['POST'])
-# def end():
-
+@app.route('/stop/', methods = ['POST'])
+def stop():
+    pass
 #     global EXPORTING_THREAD
 
 #     # Stop script
