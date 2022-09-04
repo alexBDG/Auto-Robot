@@ -6,10 +6,10 @@ Created on Sat Sep 25 14:31:56 2021
 """
 
 import os
-import io
 import sys
 import cv2
 import time
+import socket
 import logging
 import argparse
 import traceback
@@ -36,12 +36,14 @@ PAGE="""\
 """
 
 class Streaming(threading.Thread):
-    def __init__(self, fps=30):
+    def __init__(self, fps=30, port=9000):
         self.frame = None
         self.fps = fps
         self.cap = cv2.VideoCapture(0)
         self.real_fps = RealFPS(100)
         super().__init__()
+        print(f' - IP: {socket.gethostbyname(socket.gethostname())}')
+        print(f' - PORT: {port}')
 
     def run(self):
         start = time.time()
@@ -58,7 +60,7 @@ class Streaming(threading.Thread):
             # New frame
             ret, img = self.cap.read()
             if not ret:
-                print('[ERROR] no image from camera')
+                logging.error('No image from camera')
                 quit()
             cv2.putText(
                 img, "{:<3d} FPS".format(self.real_fps.get_value()),
@@ -95,7 +97,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 while True:
                     frame = stream.frame
                     self.wfile.write(b'--FRAME\r\n')
-                    # self.wfile.write(b'--mjpegstream\r\n')
                     self.send_header('Content-Type', 'image/jpeg')
                     self.send_header('Content-Length', len(frame))
                     self.end_headers()
@@ -105,7 +106,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 traceback.print_exception(type(e), e, e.__traceback__)
                 logging.warning(
                     'Removed streaming client %s: %s',
-                    self.client_address, str(e))
+                    self.client_address, str(e)
+                )
         else:
             self.send_error(404)
             self.end_headers()
@@ -116,7 +118,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
     def handel(self):
         self.server._shutdown_request = True
-        print('[INFO] shutdown requested')
+        logging.info('Shutdown requested')
 
 
 
@@ -128,13 +130,18 @@ if __name__ == "__main__":
         type=lambda x: int(x), default=30,
         help='Frames Per Second.'
     )
+    parser.add_argument(
+        '--port',
+        type=lambda x: int(x), default=9000,
+        help='Port used.'
+    )
     args = vars(parser.parse_args())
 
-    stream = Streaming(args['fps'])
+    stream = Streaming(args['fps'], args['port'])
     stream.start()
 
-    address = ('', 9000)
+    address = ('', args['port'])
     with StreamingServer(address, StreamingHandler) as server:
         server.serve_forever()
 
-    print('[INFO] End')
+    logging.info('End')
