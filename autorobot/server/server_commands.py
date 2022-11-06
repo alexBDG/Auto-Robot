@@ -6,17 +6,11 @@ Created on Tue Oct  5 21:12:27 2021
 """
 
 import os
-import io
 import sys
-import cv2
-import time
 import json
-import socket
-import logging
 import argparse
 import traceback
 import socketserver
-import threading
 from http import server
 
 try:

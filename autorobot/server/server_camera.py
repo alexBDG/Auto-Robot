@@ -9,12 +9,13 @@ import os
 import sys
 import cv2
 import time
+import json
 import socket
 import logging
 import argparse
 import traceback
-import socketserver
 import threading
+import socketserver
 from http import server
 
 try:
@@ -67,12 +68,15 @@ class Streaming(threading.Thread):
                 (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0)
             )
             ret, jpg = cv2.imencode('.jpg', img)
+            self.img = img.tolist()
             self.frame = jpg.tobytes()
 
             # Update FPS
             self.real_fps.update()
 
+
 class StreamingHandler(server.BaseHTTPRequestHandler):
+
     def do_GET(self):
         if self.path == '/':
             self.send_response(301)
@@ -108,9 +112,15 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     'Removed streaming client %s: %s',
                     self.client_address, str(e)
                 )
+        elif self.path == '/frame':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"frame": stream.img}).encode())
         else:
             self.send_error(404)
             self.end_headers()
+
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True

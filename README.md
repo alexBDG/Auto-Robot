@@ -29,3 +29,25 @@ pi@raspberrypi:~$ python vision.py
 ```
 
 
+## Autonomous mode
+
+Connect yourself to the rasberry, start the camera:
+```console
+pi@raspberrypi:~$ cd autorobot/server
+pi@raspberrypi:~$ python server_camera.py
+```
+
+Connect yourself to the rasberry, start the commands control:
+```console
+pi@raspberrypi:~$ cd autorobot/server
+pi@raspberrypi:~$ python server_commands.py
+```
+
+On a computer, start the reinforcement learning process:
+```console
+pi@raspberrypi:~$ cd autorobot/autonomous
+pi@raspberrypi:~$ python env.py
+```
+
+A folder `autorobot/autonomous/results/AAAA-MM-DDTHH-MM-SS` is created and contains all output pictures.
+Each picture filename is under the format `i.png` with `i` the iterration.
